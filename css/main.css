@@ -1116,6 +1116,11 @@ pre .javascript .function {
   top: 0;
   z-index: 1000;
 }
+.github-corner,
+.back-to-top,
+.reading-progress-bar {
+  display: none !important;
+}
 @media (max-width: 991px) {
   .github-corner .github-corner:hover .octo-arm {
     animation: none;
