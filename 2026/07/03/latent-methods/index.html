@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"wufaye.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="A compact map of latent predictive learning methods: context encoder, future target, contrastive objective, static prior, hard negatives, and JEPA-style prediction.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Latent Predictive Learning: a compact map">
+<meta property="og:url" content="https://wufaye.github.io/2026/07/03/latent-methods/index.html">
+<meta property="og:site_name" content="WuFaye Blog">
+<meta property="og:description" content="A compact map of latent predictive learning methods: context encoder, future target, contrastive objective, static prior, hard negatives, and JEPA-style prediction.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-03T09:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-03T09:00:00.000Z">
+<meta property="article:author" content="WuFaye">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://wufaye.github.io/2026/07/03/latent-methods/">
+
+
+<script id="page-configurations">
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Latent Predictive Learning: a compact map | WuFaye Blog</title>
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">WuFaye Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">10</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">14</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">61</span></a>
+
+  </li>
+  </ul>
+</nav>
+</div>
+    </header>
+
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/WuFaye" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+
+          <div class="content post posts-expand">
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://wufaye.github.io/2026/07/03/latent-methods/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="WuFaye">
+      <meta itemprop="description" content="Personal notes, projects, and study logs.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WuFaye Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Latent Predictive Learning: a compact map
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-03 17:00:00" itemprop="dateCreated datePublished" datetime="2026-07-03T17:00:00+08:00">2026-07-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Summary/" itemprop="url" rel="index"><span itemprop="name">Summary</span></a>
+                </span>
+            </span>
+        </div>
+      </header>
+
+    <div class="post-body" itemprop="articleBody">
+
+      <blockquote>
+<p>only common methods; no experiment-specific setting, no private result</p>
+</blockquote>
+<hr>
+<h2 id="One-line-map"><a href="#One-line-map" class="headerlink" title="One line map"></a>One line map</h2><p>Most latent predictive learning methods are answering five questions:</p>
+<ol>
+<li>how to encode history into a query latent <span>$q$</span></li>
+<li>how to compress a future window into a target latent <span>$k$</span></li>
+<li>what supervision to use: contrastive or predictive</li>
+<li>whether to inject static prior</li>
+<li>where hard negatives come from</li>
+</ol>
+<span id="more"></span>
+<hr>
+<h2 id="History-side-causal-context-encoder"><a href="#History-side-causal-context-encoder" class="headerlink" title="History side: causal context encoder"></a>History side: causal context encoder</h2><p>Given history embeddings <span>$x_{1:T}$</span>, a causal encoder only allows token <span>$t$</span> to attend to <span>$\le t$</span>:</p>
+<p>$$
+h_{1:T} = \mathrm{Enc}_{\mathrm{causal}}(x_{1:T}), \qquad q = f(h_T)
+$$</p>
+<p>Typical choice:</p>
+<ul>
+<li>causal Transformer</li>
+<li>last valid hidden state as summary</li>
+<li>MLP head to latent space</li>
+</ul>
+<p>Essence:</p>
+<ul>
+<li>compress the past into a state representation</li>
+<li>keep temporal direction correct</li>
+</ul>
+<p>Pros / cons / indication:</p>
+<ul>
+<li>good for progression / forecasting</li>
+<li>natural for variable-length sequence</li>
+<li>but summary can over-focus on the last step</li>
+</ul>
+<hr>
+<h2 id="Future-side-how-to-define-the-target"><a href="#Future-side-how-to-define-the-target" class="headerlink" title="Future side: how to define the target"></a>Future side: how to define the target</h2><p>The future is often a short window <span>$y_{1:W}$</span>, but the model needs a single target vector.</p>
+<h3 id="Mean-pooling"><a href="#Mean-pooling" class="headerlink" title="Mean pooling"></a>Mean pooling</h3><p>$$
+k = \frac{1}{W}\sum_{w=1}^{W} y_w
+$$</p>
+<ul>
+<li>pros: stable, cheap</li>
+<li>cons: no order, over-smoothing</li>
+</ul>
+<h3 id="Attention-pooling"><a href="#Attention-pooling" class="headerlink" title="Attention pooling"></a>Attention pooling</h3><p>$$
+\alpha_w = \mathrm{softmax}(u^\top \tanh(W y_w)), \qquad
+k = \sum_w \alpha_w y_w
+$$</p>
+<ul>
+<li>pros: focus on salient future step</li>
+<li>cons: still shallow</li>
+</ul>
+<h3 id="Transformer-over-future-window"><a href="#Transformer-over-future-window" class="headerlink" title="Transformer over future window"></a>Transformer over future window</h3><p>$$
+\tilde y_{1:W} = \mathrm{Enc}(y_{1:W}+p_{1:W}), \qquad
+k = \mathrm{Pool}(\tilde y_{1:W})
+$$</p>
+<ul>
+<li>pros: keeps local order and interaction</li>
+<li>cons: heavier, not always necessary for tiny window</li>
+</ul>
+<h3 id="Latent-query-cross-attention"><a href="#Latent-query-cross-attention" class="headerlink" title="Latent-query cross attention"></a>Latent-query cross attention</h3><p>Use a few learnable latent queries <span>$z_{1:m}$</span> to read future tokens:</p>
+<p>$$
+\hat z = \mathrm{CrossAttn}(z, y_{1:W}), \qquad k = \mathrm{Pool}(\hat z)
+$$</p>
+<ul>
+<li>pros: latent-slot summarization, more expressive</li>
+<li>cons: more parameters, less transparent</li>
+</ul>
+<h3 id="Gated-multi-summary"><a href="#Gated-multi-summary" class="headerlink" title="Gated multi-summary"></a>Gated multi-summary</h3><p>$$
+k = g_1 k_{\text{mean}} + g_2 k_{\text{last}} + g_3 k_{\text{attn}}, \qquad
+g = \mathrm{softmax}(W[\cdot])
+$$</p>
+<ul>
+<li>pros: adaptive bias-variance tradeoff</li>
+<li>cons: can collapse to one branch</li>
+</ul>
+<hr>
+<h2 id="Contrastive-predictive-objective"><a href="#Contrastive-predictive-objective" class="headerlink" title="Contrastive predictive objective"></a>Contrastive predictive objective</h2><p>The core InfoNCE form is:</p>
+<p>$$
+\mathcal{L}_{\text{NCE}}
+= - \frac{1}{B}\sum_{i=1}^{B}
+\log
+\frac{\exp(q_i^\top k_i / \tau)}
+\sum_{j=1}^{B}\exp(q_i^\top k_j / \tau)}
+$$</p>
+<p>Interpretation:</p>
+<ul>
+<li>positive pair: same sample's history and future</li>
+<li>negatives: mismatched futures</li>
+<li>the task is retrieval in latent space</li>
+</ul>
+<p>Pros / cons / indication:</p>
+<ul>
+<li>no manual label required</li>
+<li>geometry is clean and easy to evaluate</li>
+<li>but quality depends heavily on negatives</li>
+</ul>
+<hr>
+<h2 id="Hard-negatives"><a href="#Hard-negatives" class="headerlink" title="Hard negatives"></a>Hard negatives</h2><p>Random negatives are often too easy. Hard-negative methods sample futures that are close in one sense but different in another.</p>
+<h3 id="Retrieval-bank-ANN-FAISS"><a href="#Retrieval-bank-ANN-FAISS" class="headerlink" title="Retrieval bank / ANN / FAISS"></a>Retrieval bank / ANN / FAISS</h3><p>Build a bank of normalized vectors and search nearest neighbors by cosine similarity:</p>
+<p>$$
+s(q,k) = \frac{q^\top k}{\|q\|\|k\|}
+$$</p>
+<ul>
+<li>essence: mine confusing candidates efficiently</li>
+<li>best for: dense embedding space where in-batch negatives are weak</li>
+</ul>
+<h3 id="Typical-hardness-pattern"><a href="#Typical-hardness-pattern" class="headerlink" title="Typical hardness pattern"></a>Typical hardness pattern</h3><ul>
+<li>same current state, different future</li>
+<li>same diagnosis / template, different progression</li>
+<li>semantically close but future-discordant</li>
+</ul>
+<p>This changes the question from “is this future random?” to “which future is truly mine among plausible alternatives?”</p>
+<h3 id="MoCo-style-queue"><a href="#MoCo-style-queue" class="headerlink" title="MoCo-style queue"></a>MoCo-style queue</h3><p>Maintain a momentum encoder and a FIFO queue:</p>
+<p>$$
+\theta_k \leftarrow m \theta_k + (1-m)\theta_q
+$$</p>
+<ul>
+<li>pros: more negatives without huge batch</li>
+<li>cons: stale keys, extra machinery</li>
+</ul>
+<hr>
+<h2 id="Static-conditioning"><a href="#Static-conditioning" class="headerlink" title="Static conditioning"></a>Static conditioning</h2><p>Dynamic history does not contain everything. Static signals can be injected in several ways.</p>
+<h3 id="Prefix-fusion"><a href="#Prefix-fusion" class="headerlink" title="Prefix fusion"></a>Prefix fusion</h3><ul>
+<li>turn static summaries into prefix tokens</li>
+<li>essence: static information participates inside attention</li>
+</ul>
+<h3 id="Concatenation-fusion"><a href="#Concatenation-fusion" class="headerlink" title="Concatenation fusion"></a>Concatenation fusion</h3><p>$$
+\tilde x_t = [x_t ; s]
+$$</p>
+<ul>
+<li>pros: simple</li>
+<li>cons: crude repetition of the same static vector</li>
+</ul>
+<h3 id="Gated-latent-fusion"><a href="#Gated-latent-fusion" class="headerlink" title="Gated latent fusion"></a>Gated latent fusion</h3><p>$$
+g = \sigma(W[z_{\text{dyn}}; z_{\text{static}}]), \qquad
+z = g \odot z_{\text{dyn}} + (1-g)\odot z_{\text{static}}
+$$</p>
+<ul>
+<li>pros: explicit balance between static and dynamic</li>
+<li>cons: interaction happens late</li>
+</ul>
+<hr>
+<h2 id="FiLM-modulation"><a href="#FiLM-modulation" class="headerlink" title="FiLM modulation"></a>FiLM modulation</h2><p>Use static latent <span>$s$</span> to modulate dynamic latent <span>$z$</span>:</p>
+<p>$$
+\gamma = 1 + \Delta_\gamma(s), \qquad
+\beta = \Delta_\beta(s), \qquad
+\tilde z = \gamma \odot z + \beta
+$$</p>
+<ul>
+<li>essence: bias dynamic representation by feature-wise scaling and shifting</li>
+<li>pros: lightweight, controllable</li>
+<li>cons: assumes modulation is mostly affine</li>
+</ul>
+<hr>
+<h2 id="Prototype-prior"><a href="#Prototype-prior" class="headerlink" title="Prototype prior"></a>Prototype prior</h2><p>Learn prototype matrix <span>$P \in \mathbb{R}^{K \times d}$</span> and softly assign static latent <span>$s$</span>:</p>
+<p>$$
+a = \mathrm{softmax}\!\left(\frac{sP^\top}{\tau_p}\right), \qquad
+p = aP
+$$</p>
+<p>Then fuse prototype prior <span>$p$</span> with dynamic latent.</p>
+<p>Residual form:</p>
+<p>$$
+z = z_{\text{dyn}} + \alpha p
+$$</p>
+<ul>
+<li>essence: convert heterogeneous static covariates into a mixture of latent archetypes</li>
+<li>pros: interpretable prior, good for heterogeneous populations</li>
+<li>cons: prototype collapse / underuse must be monitored</li>
+</ul>
+<hr>
+<h2 id="JEPA-BYOL-style-predictive-latent-learning"><a href="#JEPA-BYOL-style-predictive-latent-learning" class="headerlink" title="JEPA / BYOL-style predictive latent learning"></a>JEPA / BYOL-style predictive latent learning</h2><p>This family removes explicit negatives. An online network predicts the future latent produced by a target network:</p>
+<p>$$
+z_c = f_{\theta}(x_{1:T}), \qquad
+\hat z_f = g_{\theta}(z_c), \qquad
+z_f = f_{\xi}(y_{1:W})
+$$</p>
+<p>Loss is usually cosine prediction:</p>
+<p>$$
+\mathcal{L}_{\text{pred}} = 2 - 2 \cos(\hat z_f, \mathrm{sg}(z_f))
+$$</p>
+<p>Target parameters are updated by EMA:</p>
+<p>$$
+\xi \leftarrow m \xi + (1-m)\theta
+$$</p>
+<ul>
+<li>pros: avoids negative-sampling sensitivity</li>
+<li>cons: collapse prevention is subtle</li>
+<li>best for: when negatives are noisy or hard to define</li>
+</ul>
+<hr>
+<h2 id="A-compact-method-map"><a href="#A-compact-method-map" class="headerlink" title="A compact method map"></a>A compact method map</h2><p>In latent predictive learning, methods usually modify exactly one of these layers:</p>
+<ol>
+<li><strong>context encoder</strong>: causal Transformer, last-state summary</li>
+<li><strong>future target constructor</strong>: mean / attention / Transformer / latent queries</li>
+<li><strong>training signal</strong>: InfoNCE vs predictive cosine</li>
+<li><strong>conditioning path</strong>: prefix / concat / gate / FiLM / prototype prior</li>
+<li><strong>negative source</strong>: in-batch, bank-mined, queue-based</li>
+</ol>
+<p>So the real question is not “which model is best?” but:</p>
+<ul>
+<li>do we need stronger temporal modeling?</li>
+<li>do we need a better future summary?</li>
+<li>do we need sharper negatives?</li>
+<li>do we need static prior?</li>
+<li>do we want ranking supervision or teacher-target prediction?</li>
+</ul>
+<p>That is the main backbone behind most latent trajectory learning variants.</p>
+
+    </div>
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/embedding/" rel="tag"># embedding</a>
+          </div>
+
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/04/01/Reinforcement-Learning/" rel="prev" title="Reinforcement_Learning">
+      <i class="fa fa-chevron-left"></i> Reinforcement_Learning
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+
+  </article>
+
+          </div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#One-line-map"><span class="nav-number">1.</span> <span class="nav-text">One line map</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#History-side-causal-context-encoder"><span class="nav-number">2.</span> <span class="nav-text">History side: causal context encoder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Future-side-how-to-define-the-target"><span class="nav-number">3.</span> <span class="nav-text">Future side: how to define the target</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Contrastive-predictive-objective"><span class="nav-number">4.</span> <span class="nav-text">Contrastive predictive objective</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hard-negatives"><span class="nav-number">5.</span> <span class="nav-text">Hard negatives</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Static-conditioning"><span class="nav-number">6.</span> <span class="nav-text">Static conditioning</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FiLM-modulation"><span class="nav-number">7.</span> <span class="nav-text">FiLM modulation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Prototype-prior"><span class="nav-number">8.</span> <span class="nav-text">Prototype prior</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JEPA-BYOL-style-predictive-latent-learning"><span class="nav-number">9.</span> <span class="nav-text">JEPA / BYOL-style predictive latent learning</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A-compact-method-map"><span class="nav-number">10.</span> <span class="nav-text">A compact method map</span></a></li></ol></div>
+      </div>
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="WuFaye"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">WuFaye</p>
+  <div class="site-description" itemprop="description">Personal notes, projects, and study logs.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/WuFaye" title="GitHub -> https:&#x2F;&#x2F;github.com&#x2F;WuFaye" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:wu.fei@sjtu.edu.cn" title="E-Mail -> mailto:wu.fei@sjtu.edu.cn" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+
+<div class="copyright">
+  &copy;
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuFaye</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+<script src="/js/schemes/muse.js"></script>
+
+<script src="/js/next-boot.js"></script>
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+</body>
+</html>
