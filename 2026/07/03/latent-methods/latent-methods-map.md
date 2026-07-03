@@ -148,7 +148,7 @@ $$
 = - \frac{1}{B}\sum_{i=1}^{B}
 \log
 \frac{\exp(q_i^\top k_i / \tau)}
-\sum_{j=1}^{B}\exp(q_i^\top k_j / \tau)
+{\sum_{j=1}^{B}\exp(q_i^\top k_j / \tau)}
 $$
 
 Interpretation:
@@ -421,4 +421,3 @@ In latent predictive learning, methods usually modify exactly one of these layer
 3. **training signal**: InfoNCE vs predictive cosine
 4. **conditioning path**: prefix / concat / gate / FiLM / prototype prior
 5. **negative source**: in-batch, bank-mined, queue-based
-
