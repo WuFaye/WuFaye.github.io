@@ -1,7 +1,5 @@
 # Latent Predictive Learning: a compact map
 
-> only common methods; no experiment-specific setting, no private result
-
 ---
 
 ## 0. One line
@@ -150,7 +148,7 @@ $$
 = - \frac{1}{B}\sum_{i=1}^{B}
 \log
 \frac{\exp(q_i^\top k_i / \tau)}
-\sum_{j=1}^{B}\exp(q_i^\top k_j / \tau)}
+\sum_{j=1}^{B}\exp(q_i^\top k_j / \tau)
 $$
 
 Interpretation:
@@ -424,12 +422,3 @@ In latent predictive learning, methods usually modify exactly one of these layer
 4. **conditioning path**: prefix / concat / gate / FiLM / prototype prior
 5. **negative source**: in-batch, bank-mined, queue-based
 
-So the real question is not "which model is best?" but:
-
-- do we need stronger temporal modeling?
-- do we need a better future summary?
-- do we need sharper negatives?
-- do we need static prior?
-- do we want ranking supervision or teacher-target prediction?
-
-That is the main backbone behind most latent trajectory learning variants.
