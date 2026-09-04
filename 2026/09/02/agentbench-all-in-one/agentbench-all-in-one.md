@@ -6,8 +6,6 @@ categories:
 tags:
   - LLM-Agent
   - Benchmark
-  - PsychAgentBench
-  - EHR
 ---
 
 # AgentBench All in One
@@ -81,106 +79,82 @@ Reference construction / human expert validation / blinded expert eval
 benchmark packaging：任务目录、执行环境、隐藏标签、verifier、leaderboard、成本时间统计。
 根据时间戳构造数据环境？
 
-#### bench 环境到底指什么
-
-HealthAgentBench 里的 environment 不只是“agent 可见的数据文件”。它至少包括四层：
-
-- agent-visible workspace：任务说明、原始数据、临床 artifact、可写 submission 文件。
-- agent action interface：terminal、文件系统、脚本、图像处理、数据处理、模型训练等工具能力。
-- hidden evaluation side：gold labels、verifier、success thresholds，这些不暴露给 agent。
-- runtime lifecycle：container / Harbor trial、timeout、attempts、cost、runtime、metrics.json。
-
-所以 benchmark environment 更接近“可执行任务沙盒”，而不是“检索数据库”。agent 看到的是工作区和工具，真正评分用的 gold/verifier 在测试侧。
-
-#### 自主处理 / 写代码是否有必要
-
-对医学临床 agent 来说，这种能力不一定总是必要，但对一类任务是必要的：
+#### 相比于普通的根据参数构建检索查血数据的方式 这种模型自主处理or写代码的方式体现的能力对于医学临床agent来说有必要吗
 
 - 如果任务只是“查某个病人最近一次血钾”，结构化检索 API 更合理，不应该逼 agent 写代码。
 - 如果任务是“从长病程中发现风险、整合多源证据、判断是否需要处置、形成结构化报告”，就需要 agent 自主选择证据、组织步骤、处理不完整信息。
 - 如果任务是 EHR ETL、data quality audit、event modelling、cohort construction，写代码/运行脚本本身就是任务能力的一部分。
 
-对 PsychAgentBench 更合适的折中是：
+---
+### GPAgentBench-2K: Benchmarking Large Language Model Agents in Complex Clinical Action Space
 
-- clinical-facing mode 不强迫写代码，例如 active round / event trigger 主要通过临床语义工具和结构化输出完成。
-- engineering / data mode 可以允许写代码，例如批量事件抽取、患者时间线构建、质量审计、统计汇总。
-- 所有模式都应该限制 action space，避免“能写代码”变成绕过 benchmark 的作弊通道。
+- Published: 2026-09-02
+- Venue: arXiv
+- Link: https://arxiv.org/abs/2608.30188
+- Authors: Boqi Chen, Xudong Liu, Yunke Ao, Heejin Do, Jianing Qiu
 
-核心判断：自主处理能力不是为了炫技，而是为了测 agent 在复杂、长程、部分可见的临床任务中能否形成可验证的行动轨迹。
+它的关键创新：CMDP 而不是 MDP
+普通 MDP 是最大化 reward，比如诊断对了就高分；CMDP 是在约束下最大化 reward，也就是：
+maximize clinical reward
+subject to safety cost <= threshold
+and diagnostic cost <= threshold
+单独惩罚安全风险 成本风险...
 
-#### 这篇可以结束的原因
+在外部 bench 里，类似思想通常表现为 cost / safety / policy compliance / over-escalation 等独立指标，而不是只看 task success；例如 HealthAgentBench 记录 cost/runtime，tau-bench 评估 policy compliance，医疗场景中 missed referral / unsafe action 应该单独成为不可被总分抵消的风险项。
 
-从 benchmark 设计角度，HealthAgentBench 最值得学的点已经清楚：
+persona-driven patient simulator
 
-- packaged executable tasks
-- hidden verifier / gold isolation
-- task-specific metrics
-- binary pass + raw score
-- cost / runtime / attempts logging
-- controlled variants for difficulty decomposition
-- large clinical artifacts instead of prompt-ready QA
+- 基于真实 GP encounter record 抽取结构化病例底座，再用人格、语言能力、病史可靠性、认知状态控制患者在问诊中的信息披露方式。
+- 它模拟的不只是口吻，而是患者是否啰嗦、隐瞒、轻描淡写、表达有限、记忆混乱，从而让 agent 必须主动问诊和处理不完整信息。
+  对应到精神病的患者问诊特诊？
+  
+#### 本地处理 vs 转诊二分类，在精神科住院里有没有类似标签
+常规病区管理 vs 升级安全处置
+继续当前治疗 vs 药物调整/暂停/紧急处理
+精神科主线处理 vs 躯体/神经科会诊或转诊
+可继续普通观察 vs 需要事件报警
+出院准备 vs 暂缓出院/加强评估
 
-它对我们不是精神心理专门 benchmark，但它给出了“医疗 agent benchmark 怎么工程化”的最好模板之一；后续无需继续逐段精读。
+whatif 构建一个长时程 随记录更新变化的精神病patient simulator
+
+---
+### MemoryAgentBench: Evaluating Memory in LLM Agents via Incremental Multi-Turn Interactions
+
+- Published: 2025-07-07
+- Venue: ICLR 2026
+- Link: https://arxiv.org/abs/2507.05257
+- Code / data: https://github.com/HUST-AI-HYZ/MemoryAgentBench
+
+把 memory agent 的能力拆成四个可测维度：
+
+- 准确检索、测试时学习、长程理解、选择性遗忘。
+
+关键风险证据召回 single-hop /  multi-hop  
+
+agent自己学什么
+
+
+长程理解 替换现在的量表检索
+
+病情反复 冲突/过期信息作为核心难点
+
+增量注入协议： 按时间顺序喂入信息，这和住院病程天然一致。
+
+- agent memory具体在记忆什么 是否应该在评测时持续提供早期时间的数据信息  
+
+---
+### FHIR-AgentBench: Benchmarking LLM Agents for Realistic Interoperable EHR Question Answering
+
+- Published: 2026
+- Venue: Proceedings of Machine Learning Research / MLHC
+- Link: https://proceedings.mlr.press/v297/lee26a.html
+- Code / data: https://github.com/JuliaLLee/FHIR-AgentBench
 
 ---
 
 ## Reading Queue
 
-### Must Read
-
-#### GPAgentBench-2K: Benchmarking Large Language Model Agents in Complex Clinical Action Space
-
-- Venue: arXiv 2026
-- Link: https://arxiv.org/abs/2608.30188
-- Why read:
-  - 面向 primary-care clinical decision-making 的 CMDP benchmark。
-  - 从 expert-validated real-world GP encounters 构建 2K+ cases。
-  - 六类基础临床动作：ask、body_exam、test、diagnose、treat、refer。
-  - 把 safety-informed abstention / refer 作为一等终局，而不是诊断失败。
-- What to learn:
-  - complex clinical action space 怎么定义。
-  - topological workflow prior / action masking 怎么设计。
-  - diagnosis accuracy、treatment score、management accuracy、missed referral、over-referral、diagnostic cost 如何共同评分。
-  - quality-safety gap 怎么成为 benchmark 的亮点故事。
-
-#### HealthAgentBench: A Unified Benchmark Suite of Realistic Agentic Healthcare Environments for Challenging Frontier AI Agents
-
-- Venue: Microsoft Research / arXiv 2026
-- Link: https://github.com/microsoft/HealthAgentBench
-- Why read:
-  - 医疗 agent benchmark 工程形态最值得参考。
-  - 54 个 healthcare agent tasks，覆盖影像、病理、EHR ETL、trial matching、EHR data quality、EHR event modelling。
-  - 每个 task 是 terminal environment + task-specific verifier。
-- What to learn:
-  - task directory
-  - instruction format
-  - verifier design
-  - cost / time / success rate logging
-  - gold leakage prevention
-
-#### MemoryAgentBench: Evaluating Memory in LLM Agents via Incremental Multi-Turn Interactions
-
-- Venue: ICLR 2026
-- Link: https://github.com/HUST-AI-HYZ/MemoryAgentBench
-- Why read:
-  - 直接服务于 streaming ward monitor 设计。
-  - 将 memory agent 能力拆成 accurate retrieval、test-time learning、long-range understanding、conflict resolution。
-- What to learn:
-  - 长期记忆任务如何构造。
-  - 过期信息、冲突信息和新信息吸收如何评分。
-  - 如何区分 long-context baseline 和 true memory agent。
-
-#### FHIR-AgentBench: Benchmarking LLM Agents for Realistic Interoperable EHR Question Answering
-
-- Venue: MLHC / PMLR 2026
-- Link: https://proceedings.mlr.press/v297/lee26a.html
-- Why read:
-  - 评估 LLM agents 在 HL7 FHIR 标准 EHR 上做 realistic interoperable QA。
-  - 比较 direct FHIR API、specialized tools、single/multi-turn、natural language/code reasoning。
-- What to learn:
-  - EHR 工具层怎么设计。
-  - 不同 tool abstraction 对 agent 表现的影响。
-  - 是否需要让 PsychAgentBench 暴露临床语义接口而不是底层表查询。
+### Must Read 
 
 #### APEX-MEM
 
@@ -341,20 +315,3 @@ HealthAgentBench 里的 environment 不只是“agent 可见的数据文件”�
   - workflow benchmark 质量高，但 2025 前，作为工作流设计背景快速扫。
 
 ---
-
-## Reading Template
-
-每篇文献都按同一个模板记：
-
-- 这篇 benchmark 想测什么能力？
-- task instance 从哪里来？
-- agent 能看到什么 observation？
-- agent 能做什么 action？
-- verifier / metric 怎么设计？
-- 是否有 cost、time、trajectory、failure mode？
-- 有哪些 reference construction / human expert validation / blinded expert eval？
-- 有哪些可借鉴组件或工具？
-- 它最强的设计点是什么？
-- 它最弱或最容易被攻击的地方是什么？
-- 哪一点能迁移到 PsychAgentBench？
-- 哪一点不能照搬？
