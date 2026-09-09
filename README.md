@@ -37,9 +37,8 @@ GitHub repository settings must use:
 Settings -> Pages -> Build and deployment -> Source: GitHub Actions
 ```
 
-## Current Migration Note
+## Migration Status
 
-The previous generated static site is still tracked in this repository so the live blog is not broken during migration.
-After all old Hexo source posts and assets are confirmed migrated, the old generated files can be removed from `main`.
+The old `BLOGS` source content has been migrated into `source/`, including 63 posts and their page assets. Generated HTML, CSS, JavaScript, and archive folders are intentionally excluded from version control; they are rebuilt into `public/` by the Pages workflow.
 
-The Pages workflow currently refuses to deploy if fewer than 20 Markdown posts are present under `source/_posts/`. This prevents accidentally replacing the current live blog with a partially migrated Hexo build.
+The Pages workflow refuses to deploy if fewer than 20 Markdown posts are present under `source/_posts/`. This keeps an incomplete local migration from replacing the live site.
