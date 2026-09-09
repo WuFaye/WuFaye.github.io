@@ -1,31 +1,44 @@
 # WuFaye Blog
 
-This repository contains the generated static site for `wufaye.github.io`.
+This repository is being organized as a single-repository Hexo blog:
 
-## Common commands
+- Hexo source lives in this repository.
+- Posts live in `source/_posts/`.
+- GitHub Actions builds Hexo and publishes `public/` to GitHub Pages.
 
-Preview locally:
-
-```powershell
-cd C:\Users\19542\Desktop\wf\WuFaye.github.io
-.\scripts\blog-preview.ps1
-```
-
-Sync latest remote changes:
+## Write A Post
 
 ```powershell
 cd C:\Users\19542\Desktop\wf\WuFaye.github.io
-.\scripts\blog-sync.ps1
+npm ci
+.\tools\blog-bootstrap.ps1
+npm run clean
+npm run build
+npm run preview
 ```
 
-Publish local updates:
+New posts should be created under:
 
-```powershell
-cd C:\Users\19542\Desktop\wf\WuFaye.github.io
-.\scripts\blog-publish.ps1 -Message "update blog"
+```text
+source/_posts/
 ```
 
-## Notes
+Helper scripts live under `tools/` because Hexo reserves the root `scripts/` directory for JavaScript extensions.
 
-- This is a static-site repository, not the Hexo source repository.
-- If you later find your Hexo source repo, it is better to edit posts there and deploy into this repo.
+## Deploy
+
+Push to `main`; `.github/workflows/pages.yml` builds and deploys the site after the Hexo source migration is complete.
+
+`npm run deploy` is intentionally mapped to a local clean build. In this one-repository setup, publishing is done by GitHub Actions, not by `hexo deploy`.
+
+GitHub repository settings must use:
+
+```text
+Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+```
+
+## Migration Status
+
+The old `BLOGS` source content has been migrated into `source/`, including 63 posts and their page assets. Generated HTML, CSS, JavaScript, and archive folders are intentionally excluded from version control; they are rebuilt into `public/` by the Pages workflow.
+
+The Pages workflow refuses to deploy if fewer than 20 Markdown posts are present under `source/_posts/`. This keeps an incomplete local migration from replacing the live site.
