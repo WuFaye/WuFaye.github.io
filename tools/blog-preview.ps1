@@ -8,9 +8,9 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 
 Push-Location $repoRoot
 try {
-  Write-Host "Serving $repoRoot at http://127.0.0.1:$Port"
+  Write-Host "Serving Hexo at http://127.0.0.1:$Port"
   Write-Host "Press Ctrl+C to stop."
-  python -m http.server $Port
+  .\node_modules\.bin\hexo.cmd server -p $Port
 }
 finally {
   Pop-Location
