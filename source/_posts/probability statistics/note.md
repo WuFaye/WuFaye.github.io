@@ -3,6 +3,7 @@ title: 概统小笔记
 tags: notes
 categories: probability statistics
 mathjax: true
+date: 2022-03-19 00:00:00
 ---
 # 概率
 ## 概型

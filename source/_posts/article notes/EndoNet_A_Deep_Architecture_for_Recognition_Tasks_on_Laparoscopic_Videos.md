@@ -3,6 +3,7 @@ title: EndoNet A Deep Architecture for Recognition Tasks on Laparoscopic Videos
 tags: notes
 categories: article notes
 mathjax: true
+date: 2023-07-12 00:00:00
 ---
 
 # EndoNet: A Deep Architecture for Recognition Tasks on Laparoscopic Videos

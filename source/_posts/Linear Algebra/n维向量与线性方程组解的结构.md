@@ -4,6 +4,7 @@ mathjax: true
 categories: linear algebra
 tags: notes
 comments: true
+date: 2022-03-19 00:00:00
 ---
 ## 线性关系
 ![](image/2021-12-25-12-36-15.png)

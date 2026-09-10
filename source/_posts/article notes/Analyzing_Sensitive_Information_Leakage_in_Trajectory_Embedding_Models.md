@@ -3,6 +3,7 @@ title: Analyzing Sensitive Information Leakage in Trajectory Embedding Models
 tags: notes
 categories: article notes
 mathjax: true
+date: 2023-06-27 00:00:00
 ---
 
 # Analyzing Sensitive Information Leakage in Trajectory Embedding Models

@@ -1,3 +1,8 @@
+---
+title: image_processing_note
+date: 2023-12-11 00:00:00
+---
+
 
 ## 1. 图像基础
 ### 1.1. 医学成像

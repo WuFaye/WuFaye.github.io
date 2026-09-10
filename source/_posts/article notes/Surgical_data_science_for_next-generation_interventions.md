@@ -3,6 +3,7 @@ title: Surgical data science for next-generation interventions
 tags: notes
 categories: article notes
 mathjax: true
+date: 2023-07-12 00:00:00
 ---
 
 # Surgical data science for next-generation interventions

@@ -3,6 +3,7 @@ title: biochemistry
 tags: notes
 categories: 
 mathjax: true
+date: 2023-11-02 00:00:00
 ---
 
 # 2-1 Water molecule

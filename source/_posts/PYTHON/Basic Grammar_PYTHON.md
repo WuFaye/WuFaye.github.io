@@ -1,3 +1,8 @@
+---
+title: 'PYTHON Basic Grammar'
+date: 2022-03-19 00:00:00
+---
+
 # PYTHON Basic Grammar
 ---
 ## 类型

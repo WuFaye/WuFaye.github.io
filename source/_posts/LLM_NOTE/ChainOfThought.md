@@ -3,6 +3,7 @@ title: ChainOfThought
 tags: notes
 categories: 
 mathjax: true
+date: 2024-09-25 00:00:00
 ---
 # Chain of Thought
 
